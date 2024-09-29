@@ -1,0 +1,74 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页",
+				// "navigationBarBackgroundColor": "#ffffff",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "pages/anime/anime",
+			"style" : 
+			{
+				"navigationBarTitleText" : "动画",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "pages/mode/mode",
+			"style" : 
+			{
+				"navigationBarTitleText" : "组件",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "pages/color/color",
+			"style" : 
+			{
+				"navigationBarTitleText" : "背景配色",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "components/navigateList/navigateList",
+			"style" : 
+			{
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "components/footer/footer",
+			"style" : 
+			{
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh" : false
+			}
+		},{
+			"path" : "components/loading/loading",
+			"style" : 
+			{
+				"navigationBarTitleText" : "进度条",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "components/myChart/myChart",
+			"style" : 
+			{
+				"navigationBarTitleText" : "自制仪表盘",
+				"enablePullDownRefresh" : false
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}
