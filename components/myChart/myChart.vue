@@ -69,7 +69,213 @@
 			console.log(titheBoxActive)
 		},
 		methods: {
-			
+			minusRange: function(e) {
+			        wx.vibrateShort() // 触发手机振动
+			        let gaugeValue = this.data.gaugeValue-1;
+			        if( gaugeValue >= 0 ){
+			            this.setData({
+			                gaugeValue:gaugeValue,
+			                gaugeDisplayValue:gaugeValue,
+			            })
+			            this.setRingMark(gaugeValue,'minus');
+			            clearTimeout(this.data.setTimer);
+			            this.data.setTimer = setTimeout(()=>{
+			                this.openLoading();
+			                setTimeout(()=>{
+			                    this.setRingDisplay(gaugeValue,'minus');
+			                },3000);
+			            },1000);
+			        }
+			    },
+			    plusRange: function(e) {
+			        wx.vibrateShort() // 触发手机振动
+			        let gaugeValue = this.data.gaugeValue+1;
+			        if( gaugeValue <= 100 ){
+			            this.setData({
+			                gaugeValue:gaugeValue,
+			                gaugeDisplayValue:gaugeValue,
+			            })
+			            this.setRingMark(gaugeValue,'plus');
+			        }
+			        clearTimeout(this.data.setTimer);
+			        this.data.setTimer = setTimeout(()=>{
+			            this.openLoading();
+			            setTimeout(()=>{
+			                this.setRingDisplay(gaugeValue,'plus');
+			            },3000);
+			        },1000);
+			    },
+			    /**
+			     * updateGaugeValue int 修改值
+			     * type string 'active' 活动值 'display' 目标值
+			     * mode string 'minus'|'plus'
+			     **/
+			    setRingMark(updateGaugeValue,mode) {
+			        let titheBoxActive = this.data.titheBoxActive
+			        titheBoxActive.forEach((item,index) => {
+			            if( mode == 'minus' ){
+			                item.active = 1;
+			                if (item.tick >= updateGaugeValue) {
+			                    item.active = 0;
+			                }
+			            }else if( mode == 'plus' ){
+			                item.active = 0;
+			                if (item.tick <= updateGaugeValue) {
+			                    item.active = 1;
+			                }
+			            }
+			        });
+			        console.log(updateGaugeValue,'nummmmm')
+			        this.setData({
+			            titheBoxActive:titheBoxActive
+			        })
+			    },
+			    setRingDisplay(updateGaugeValue,mode){
+			        let titheBoxActive = this.data.titheBoxActive;
+			        let index = updateGaugeValue,num=0,minus = this.data.gaugeDisplayValueActive;
+			        let displayTimer = setInterval(()=>{
+			            index--,num++,minus--;
+			            titheBoxActive.forEach(item => {
+			                if( mode == 'minus' ){
+			                    if( minus>=this.data.gaugeValue ){
+			                        item.display = 1;
+			                        if (item.tick > minus || minus == 0) {
+			                            item.display = 0;
+			                        }
+			                    }
+			                }else if( mode == 'plus' ){
+			                    item.display = 0;
+			                    if (item.tick <= num) {
+			                        item.display = 1;
+			                    }
+			                }
+			            });
+			            if( mode == 'minus' ){
+			                if(updateGaugeValue<=this.data.gaugeValue){
+			                    this.setData({
+			                        titheBoxActive:titheBoxActive,
+			                        gaugeDisplayValueActive:updateGaugeValue,
+			                    })
+			                }
+			                if( minus==updateGaugeValue ){
+			                    clearInterval(displayTimer)
+			                }
+			            }else if( mode=='plus' ){
+			                if(this.data.gaugeDisplayValueActive<=num && num<=100){
+			                    this.setData({
+			                        titheBoxActive:titheBoxActive,
+			                        gaugeDisplayValueActive:num,
+			                    })
+			                }
+			                if( index==0 ){
+			                    this.setData({
+			                        gaugeDisplayValueActive:num,
+			                    })
+			                    clearInterval(displayTimer)
+			                }
+			            }
+			        },50)
+			    },
+			    minusLongPress (e) {
+			        // 长按事件处理函数
+			        this.data.longPressTimer = setInterval(() => {
+			            this.minusRange();
+			        }, 100); // 每隔100毫秒触发一次
+			    },
+			    minusTouchEnd (e) {
+			        // 触摸结束事件处理函数
+			        if (this.data.longPressTimer) {
+			            clearInterval(this.data.longPressTimer); // 清除定时器
+			            this.data.longPressTimer = null;
+			        }
+			    },
+			    plusLongPress (e) {
+			        // 长按事件处理函数
+			        this.data.longPressTimer = setInterval(() => {
+			            this.plusRange();
+			        }, 100); // 每隔100毫秒触发一次
+			    },
+			    plusTouchEnd (e) {
+			        // 触摸结束事件处理函数
+			        if (this.data.longPressTimer) {
+			            clearInterval(this.data.longPressTimer); // 清除定时器
+			            this.data.longPressTimer = null;
+			        }
+			    },
+			    movePointer(e){
+			        if( e.touches[0].pageX>=this.data.box.left && 
+			            e.touches[0].pageX<=this.data.box.right &&
+			            e.touches[0].pageY>=this.data.box.top && 
+			            e.touches[0].pageY<=this.data.box.bottom
+			        ){
+			            wx.vibrateShort() // 触发手机振动
+			            this.setData({
+			                pressActive: 1,
+			            });
+			            let left = e.touches[0].pageX - this.rect.left;
+			            let top = e.touches[0].pageY - this.rect.top;
+			            let now_index = 0;
+			            if (left <= this.rect.width_c) {
+			                if (top < this.rect.height_c) {
+			                    now_index = 1
+			                } else {
+			                    now_index = 0;
+			                }
+			            } else {
+			                if (top < this.rect.height_c) {
+			                    now_index = 2;
+			                } else {
+			                    now_index = 3;
+			                }
+			            }
+			            let x = Math.abs(left - this.rect.width_c);
+			            let y = Math.abs(top - this.rect.height_c);
+			            let z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+			            let asin = 0;
+			            if (now_index == 0 || now_index == 2) {
+			                asin = Math.asin(x / z);
+			            } else {
+			                asin = Math.asin(y / z);
+			            }
+			            let angle = Number((asin * 180 / Math.PI).toFixed(2)) + (now_index * 90);
+			            this.setData({
+			                angle: angle
+			            })
+			            if(angle>=20&&angle<=330){
+			                let mode = 'plus';
+			                if( this.data.gaugeValue <= this.data.gaugeDisplayValueActive ){
+			                    mode = 'minus';
+			                }   
+			                let angleValue = Math.floor(angle / 3);
+			                if( angle < 30 ){
+			                    angleValue = Math.floor(angle-20);
+			                }
+			                // 可用角度为300，在300角度平均分布100个值；
+			                if( angleValue <= 100 && angleValue >= 0 ){
+			                    this.setData({
+			                        gaugeValue:angleValue,
+			                        gaugeDisplayValue:angleValue,
+			                        mode: mode
+			                    })
+			                    this.setRingMark(angleValue,mode);
+			                }
+			            }
+			        }
+			    },
+			    pressTouchEnd(e){
+			        if( !(this.data.gaugeValue==0 && this.data.mode=='plus') ){
+			            clearTimeout(this.data.setTimer);
+			            this.data.setTimer = setTimeout(()=>{
+			                this.openLoading();
+			                setTimeout(()=>{
+			                    this.setRingDisplay(this.data.gaugeValue,this.data.mode);
+			                },3000);
+			            },1000);
+			        }
+			        this.setData({
+			            pressActive: 0,
+			        });
+			    },
 		}
 	}
 </script>
